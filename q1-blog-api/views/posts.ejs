@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog Posts</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      color: #222;
+    }
+    nav {
+      background: #1f2937;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a { color: #fff; text-decoration: none; font-weight: 600; margin-left: 16px; }
+    nav .brand { font-size: 1.2rem; }
+    .container { max-width: 900px; margin: 32px auto; padding: 0 16px; }
+    .post-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .post-card img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .post-title { font-size: 1.4rem; margin: 0 0 8px; }
+    .post-meta { color: #6b7280; font-size: 0.85rem; margin-bottom: 12px; }
+    .tag {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-right: 6px;
+    }
+    .empty { text-align: center; color: #6b7280; padding: 60px 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="brand">📝 Blog Platform</span>
+    <div>
+      <a href="/posts">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/login">Login</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Published Posts</h1>
+
+    <% if (posts.length === 0) { %>
+      <div class="empty">No published posts yet.</div>
+    <% } else { %>
+      <% posts.forEach(function(post) { %>
+        <div class="post-card">
+          <% if (post.image) { %>
+            <img src="<%= post.image %>" alt="<%= post.title %>" />
+          <% } %>
+          <h2 class="post-title"><%= post.title %></h2>
+          <div class="post-meta">
+            By <%= post.author && post.author.name ? post.author.name : 'Unknown' %>
+            &middot; <%= new Date(post.createdAt).toLocaleDateString() %>
+          </div>
+          <p><%= post.content.length > 300 ? post.content.slice(0, 300) + '...' : post.content %></p>
+          <% if (post.tags && post.tags.length) { %>
+            <div>
+              <% post.tags.forEach(function(tag) { %>
+                <span class="tag">#<%= tag %></span>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</body>
+</html>

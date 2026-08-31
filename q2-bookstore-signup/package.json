@@ -1,0 +1,13 @@
+{
+  "name": "bookstore-secure-signup",
+  "version": "1.0.0",
+  "description": "Secure signup/login for bookstore customers using bcrypt password hashing (MongoDB + Mongoose)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "mongoose": "^8.6.0"
+  }
+}

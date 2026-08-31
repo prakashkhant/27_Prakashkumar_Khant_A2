@@ -1,0 +1,8 @@
+{
+  "name": "bookstore-user-roles",
+  "version": "1.0.0",
+  "description": "Q4 Mongoose User schema with customer/admin roles",
+  "main": "index.js",
+  "scripts": { "start": "node index.js" },
+  "dependencies": { "mongoose": "^8.18.0" }
+}

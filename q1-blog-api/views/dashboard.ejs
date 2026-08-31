@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      color: #222;
+    }
+    nav {
+      background: #1f2937;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a, nav button {
+      color: #fff; text-decoration: none; font-weight: 600; margin-left: 16px;
+      background: none; border: none; font-size: 1rem; cursor: pointer;
+    }
+    .container { max-width: 900px; margin: 32px auto; padding: 0 16px; }
+    .welcome { margin-bottom: 24px; color: #374151; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid #eee; }
+    th { background: #f3f4f6; font-size: 0.85rem; text-transform: uppercase; color: #6b7280; }
+    .status { padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; }
+    .status.published { background: #d1fae5; color: #065f46; }
+    .status.draft { background: #fef3c7; color: #92400e; }
+    .actions a, .actions button {
+      margin-right: 10px; font-size: 0.85rem; cursor: pointer; border: none; background: none;
+      color: #2563eb; text-decoration: underline; padding: 0;
+    }
+    .actions .delete { color: #dc2626; }
+    .empty { text-align: center; color: #6b7280; padding: 60px 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span>👋 Welcome, <%= user.name %> (<%= user.role %>)</span>
+    <div>
+      <a href="/posts">Public Posts</a>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><h1 style="margin:0;">My Posts</h1><a href="/add-post" style="background:#2563eb;color:#fff;text-decoration:none;padding:10px 16px;border-radius:6px;font-weight:600;">+ Add Post</a></div>
+    <p class="welcome">Manage your blog posts below. Edit and delete actions call the protected API and are re-checked for ownership server-side.</p>
+
+    <% if (posts.length === 0) { %>
+      <div class="empty">You haven't written any posts yet. Use <code>POST /api/posts</code> to create one.</div>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Tags</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% posts.forEach(function(post) { %>
+            <tr data-id="<%= post._id %>">
+              <td><%= post.title %></td>
+              <td>
+                <span class="status <%= post.published ? 'published' : 'draft' %>">
+                  <%= post.published ? 'Published' : 'Draft' %>
+                </span>
+              </td>
+              <td><%= post.tags.join(', ') %></td>
+              <td><%= new Date(post.createdAt).toLocaleDateString() %></td>
+              <td class="actions">
+                <a href="#" class="edit-link" data-id="<%= post._id %>">Edit</a>
+                <button class="delete" data-id="<%= post._id %>">Delete</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <script>
+    // Edit/delete links call the protected JSON API directly (visible only
+    // because the user is logged in) - the server always re-checks ownership.
+    document.querySelectorAll('.delete').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        const id = btn.getAttribute('data-id');
+        if (!confirm('Delete this post?')) return;
+        const res = await fetch('/api/posts/' + id, { method: 'DELETE', credentials: 'include' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          window.location.reload();
+        } else {
+          alert(data.message || 'Failed to delete post');
+        }
+      });
+    });
+
+    document.querySelectorAll('.edit-link').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const id = link.getAttribute('data-id');
+        window.location.href = '/add-post?edit=' + encodeURIComponent(id);
+      });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async function () {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/login';
+    });
+  </script>
+</body>
+</html>
